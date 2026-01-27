@@ -2,10 +2,12 @@
 
 ## Docker File Sharing (macOS)
 
+**Note:** The project has been moved to `~/nvidia-gpu-monitoring` (home directory) to avoid Docker file sharing issues. Docker Desktop on macOS typically has access to the home directory by default.
+
 If you encounter errors like:
 ```
 Error response from daemon: mounts denied: 
-The path /opt/nvidia-gpu-monitoring/otel-collector-config.yaml is not shared from the host
+The path is not shared from the host
 ```
 
 ### Solution 1: Add Path to Docker File Sharing (Recommended)
@@ -14,8 +16,9 @@ The path /opt/nvidia-gpu-monitoring/otel-collector-config.yaml is not shared fro
 2. Go to **Settings** (gear icon) > **Resources** > **File Sharing**
 3. Click **+** to add a new path
 4. Add the directory containing the project:
-   - For `/opt/nvidia-gpu-monitoring`, add `/opt` or the specific path
-   - Or add your home directory if the project is there
+   - The project is now in `~/nvidia-gpu-monitoring` (home directory)
+   - Docker Desktop typically has access to the home directory by default
+   - If needed, add `~` or `/Users/your-username` to file sharing
 5. Click **Apply & Restart**
 
 ### Solution 2: Use Relative Paths (Already Configured)
@@ -23,7 +26,7 @@ The path /opt/nvidia-gpu-monitoring/otel-collector-config.yaml is not shared fro
 The `docker-compose.yml` uses `${PWD}` which should work if you run docker-compose from the project directory:
 
 ```bash
-cd /opt/nvidia-gpu-monitoring
+cd ~/nvidia-gpu-monitoring
 docker-compose up -d
 ```
 

@@ -21,8 +21,14 @@ nvidia-smi  # Optional - only if you have NVIDIA hardware
 
 ### 1. Start Elastic Stack and OpenTelemetry Collector
 
-**Option A: Using start-local Elastic (with API key)**
+**Option A: Using start-local Elastic with Observability (Recommended)**
 ```bash
+# Start Elastic with observability features
+curl -fsSL https://elastic.co/start-local | sh -s -- --edot
+
+# Note the API key from the output, then update otel-collector-config.start-local.yaml
+# with the API key (replace the existing api_key value)
+
 # Start OpenTelemetry Collector with start-local config
 otelcol --config=otel-collector-config.start-local.yaml
 ```
@@ -39,9 +45,11 @@ docker-compose ps
 
 Check Elasticsearch:
 ```bash
+# For Docker Compose (no auth):
 curl http://localhost:9200/_cluster/health
-# For start-local with API key:
-curl -H "Authorization: ApiKey cS1LS0Fad0IweERGVE5FUFl6UFk6b3FDcm8zSExPMnhiMUh3YVlvZW42QQ==" http://localhost:9200/_cluster/health
+
+# For start-local with API key (replace YOUR_API_KEY with actual key):
+curl -H "Authorization: ApiKey YOUR_API_KEY" http://localhost:9200/_cluster/health
 ```
 
 ### 2. Setup Python Environment

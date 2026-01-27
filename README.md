@@ -35,6 +35,14 @@ chmod +x setup.sh
 ### Manual Setup
 
 1. **Start Elastic Stack**:
+   
+   **Option A: Using start-local with Observability (Recommended)**
+   ```bash
+   curl -fsSL https://elastic.co/start-local | sh -s -- --edot
+   ```
+   Note the API key from the output and update `otel-collector-config.start-local.yaml` with it.
+   
+   **Option B: Using Docker Compose**
    ```bash
    docker-compose up -d
    ```
@@ -58,7 +66,9 @@ chmod +x setup.sh
    
    **Option B: Run Collector Binary Locally**
    - Install from: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
-   - For start-local Elastic: `otelcol --config=otel-collector-config.start-local.yaml`
+   - For start-local Elastic (with `--edot`): 
+     - First update `otel-collector-config.start-local.yaml` with your API key from start-local output
+     - Then run: `otelcol --config=otel-collector-config.start-local.yaml`
    - For local Elastic: `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
    
    **Option C: Run Collector in Docker Manually**
@@ -238,9 +248,11 @@ The project includes multiple collector configurations:
 - `otel-collector-config.yaml` - For Docker Compose setup
 
 **For start-local Elastic:**
-The configuration file `otel-collector-config.start-local.yaml` is pre-configured with:
+The configuration file `otel-collector-config.start-local.yaml` is configured for:
 - Endpoint: `http://localhost:9200`
-- API key: Already set (update if needed)
+- API key: **You must update this with the API key from start-local output**
+
+After running `curl -fsSL https://elastic.co/start-local | sh -s -- --edot`, copy the API key from the terminal output and update the `api_key` field in the config file.
 
 Edit the config files to:
 - Adjust export intervals and batch sizes

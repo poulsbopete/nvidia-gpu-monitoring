@@ -26,11 +26,17 @@ processors:
 
 exporters:
   # Elasticsearch exporter for metrics, traces, and logs
-  # Configured for start-local Elastic instance
+  # Configured for start-local Elastic instance with --edot flag
+  # 
+  # IMPORTANT: After running start-local, update the api_key below with the
+  # API key from the start-local output. The API key format is: elastic:xxxxx==
+  #
+  # To get start-local with observability:
+  #   curl -fsSL https://elastic.co/start-local | sh -s -- --edot
   elasticsearch:
     endpoints:
       - http://localhost:9200
-    api_key: cS1LS0Fad0IweERGVE5FUFl6UFk6b3FDcm8zSExPMnhiMUh3YVlvZW42QQ==
+    api_key: YOUR_API_KEY_FROM_START_LOCAL_OUTPUT  # Update this with your API key!
     logs_index: logs-nvidia-gpu-monitoring
     traces_index: traces-nvidia-gpu-monitoring
     metrics_index: metrics-nvidia-gpu-monitoring
