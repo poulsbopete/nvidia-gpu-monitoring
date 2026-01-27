@@ -7,6 +7,7 @@ This demo showcases monitoring NVIDIA GPUs, AI analysis jobs, and geo seismic da
 - **GPU Monitoring**: Real-time metrics for NVIDIA GPU utilization, memory, temperature, and power
   - Automatically falls back to mock data if NVIDIA hardware is not available
   - Mock mode can be forced with `--mock-gpu` flag for testing
+  - See [MOCK_MODE.md](MOCK_MODE.md) for detailed mock mode documentation
 - **AI/Analysis Job Monitoring**: Traces and metrics for seismic analysis jobs
 - **Geo Seismic Data Monitoring**: Logs and metrics for data processing pipelines
 - **OpenTelemetry Integration**: Full observability with metrics, traces, and logs
