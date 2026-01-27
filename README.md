@@ -117,35 +117,94 @@ chmod +x setup.sh
 
 Access Kibana at: http://localhost:5601
 
-### Metrics
+### Step 1: Create Index Patterns
 
-1. Navigate to **Stack Management** > **Index Patterns**
-2. Create index pattern: `metrics-nvidia-gpu-monitoring-*`
-3. View metrics in **Discover** or create custom dashboards
+Before exploring data, you need to create index patterns for each telemetry type:
 
-Key metrics to explore:
-- `gpu.utilization.percent` - GPU utilization
-- `gpu.memory.used.bytes` - GPU memory usage
-- `gpu.temperature.celsius` - GPU temperature
-- `seismic.job.duration.seconds` - Job execution time
-- `seismic.data.ingestion.rate.bytes_per_second` - Data ingestion rate
+1. Navigate to **Stack Management** > **Index Patterns** > **Create Index Pattern**
+2. Create the following patterns (one at a time):
 
-### Traces
+   **Metrics:**
+   - Pattern: `metrics-nvidia-gpu-monitoring-*`
+   - Time field: `@timestamp`
+   - Click "Create index pattern"
 
-1. Navigate to **Stack Management** > **Index Patterns**
-2. Create index pattern: `traces-nvidia-gpu-monitoring-*`
-3. View traces in **Discover** or use **APM**
+   **Traces:**
+   - Pattern: `traces-nvidia-gpu-monitoring-*`
+   - Time field: `@timestamp`
+   - Click "Create index pattern"
 
-Key traces:
-- `seismic.analysis.*` - Analysis job traces
-- `seismic.data.ingestion` - Data ingestion traces
-- `seismic.data.processing` - Data processing traces
+   **Logs:**
+   - Pattern: `logs-nvidia-gpu-monitoring-*`
+   - Time field: `@timestamp`
+   - Click "Create index pattern"
 
-### Logs
+### Step 2: Explore Metrics
 
-1. Navigate to **Stack Management** > **Index Patterns**
-2. Create index pattern: `logs-nvidia-gpu-monitoring-*`
-3. View logs in **Discover** or **Logs Explorer**
+1. Go to **Discover** in Kibana
+2. Select the `metrics-nvidia-gpu-monitoring-*` index pattern from the dropdown
+3. Explore key metrics:
+   - `gpu.utilization.percent` - GPU utilization percentage
+   - `gpu.memory.used.bytes` - GPU memory usage
+   - `gpu.temperature.celsius` - GPU temperature
+   - `gpu.power.usage.watts` - GPU power consumption
+   - `seismic.job.duration.seconds` - Job execution time
+   - `seismic.job.success.count` - Successful job count
+   - `seismic.data.ingestion.rate.bytes_per_second` - Data ingestion rate
+   - `seismic.data.quality.score` - Data quality scores
+
+**Filtering Tips:**
+- Filter by `gpu.index` to see metrics for specific GPUs
+- Filter by `gpu.mock` to see if using mock data (`gpu.mock: "true"`)
+- Filter by `job.type` to see metrics for specific job types (inference, training, preprocessing)
+
+### Step 3: Explore Traces
+
+1. In **Discover**, select the `traces-nvidia-gpu-monitoring-*` index pattern
+2. View distributed traces for:
+   - `seismic.analysis.inference` - AI inference job traces
+   - `seismic.analysis.training` - Training job traces
+   - `seismic.analysis.preprocessing` - Data preprocessing traces
+   - `seismic.data.ingestion` - Data ingestion traces
+   - `seismic.data.processing` - Data processing traces
+   - `seismic.data.pipeline` - Complete pipeline traces
+
+**Trace Details:**
+- Click on any trace to see the full span hierarchy
+- View timing information for each operation
+- See attributes like `job.id`, `job.type`, `data.size`, etc.
+
+### Step 4: Explore Logs
+
+1. In **Discover**, select the `logs-nvidia-gpu-monitoring-*` index pattern
+2. View application logs showing:
+   - Job queue operations
+   - Job completion status
+   - Data pipeline progress
+   - GPU monitoring status
+   - Error messages (if any)
+
+**Log Filtering:**
+- Filter by `log.level` (INFO, WARN, ERROR)
+- Search for specific job IDs: `job_0020`
+- Filter by service: `resource.attributes.service.name: "nvidia-gpu-monitoring"`
+
+### Step 5: Create Dashboards (Optional)
+
+1. Navigate to **Dashboard** > **Create Dashboard**
+2. Add visualizations for:
+   - GPU utilization over time (line chart)
+   - GPU memory usage (area chart)
+   - Job success/failure rates (pie chart)
+   - Data processing throughput (bar chart)
+   - Average job duration (metric)
+   - Data quality scores (histogram)
+
+**Quick Visualization Tips:**
+- Use Lens or Visualize to create charts
+- Group by `gpu.index` for multi-GPU setups
+- Group by `job.type` to compare job types
+- Use time-based aggregations for trends
 
 ## Monitoring Components
 

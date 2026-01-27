@@ -76,13 +76,29 @@ The demo will start generating:
 
 ### 4. View Data in Kibana
 
-1. Open browser: http://localhost:5601
-2. Go to **Stack Management** > **Index Patterns**
-3. Create index patterns:
-   - `metrics-nvidia-gpu-monitoring-*`
-   - `traces-nvidia-gpu-monitoring-*`
-   - `logs-nvidia-gpu-monitoring-*`
-4. Explore data in **Discover**
+1. **Open Kibana**: http://localhost:5601
+
+2. **Create Index Patterns** (required first step):
+   - Go to **Stack Management** > **Index Patterns** > **Create Index Pattern**
+   - Create these patterns one at a time:
+     - `metrics-nvidia-gpu-monitoring-*` (Time field: `@timestamp`)
+     - `traces-nvidia-gpu-monitoring-*` (Time field: `@timestamp`)
+     - `logs-nvidia-gpu-monitoring-*` (Time field: `@timestamp`)
+
+3. **Explore Data in Discover**:
+   - Go to **Discover**
+   - Select an index pattern from the dropdown
+   - Use the time picker (top right) to adjust time range
+   - Click on fields in the left sidebar to filter
+
+4. **What to Look For**:
+   - **Metrics**: GPU utilization, memory, temperature, job durations
+   - **Traces**: Distributed traces showing job execution and data pipelines
+   - **Logs**: Application logs showing job status, data storage, pipeline progress
+
+5. **Create Visualizations** (optional):
+   - Go to **Dashboard** > **Create Dashboard**
+   - Add visualizations for GPU metrics, job performance, data throughput
 
 ## Stopping Everything
 
