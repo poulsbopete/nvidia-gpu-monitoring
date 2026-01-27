@@ -5,6 +5,8 @@ This demo showcases monitoring NVIDIA GPUs, AI analysis jobs, and geo seismic da
 ## Features
 
 - **GPU Monitoring**: Real-time metrics for NVIDIA GPU utilization, memory, temperature, and power
+  - Automatically falls back to mock data if NVIDIA hardware is not available
+  - Mock mode can be forced with `--mock-gpu` flag for testing
 - **AI/Analysis Job Monitoring**: Traces and metrics for seismic analysis jobs
 - **Geo Seismic Data Monitoring**: Logs and metrics for data processing pipelines
 - **OpenTelemetry Integration**: Full observability with metrics, traces, and logs
@@ -13,9 +15,10 @@ This demo showcases monitoring NVIDIA GPUs, AI analysis jobs, and geo seismic da
 ## Prerequisites
 
 - Python 3.9+
-- NVIDIA GPU with CUDA support
 - Docker and Docker Compose (for Elastic stack)
-- NVIDIA drivers and CUDA toolkit
+- **Optional**: NVIDIA GPU with CUDA support (demo works without it using mock data)
+  - If you have NVIDIA hardware, install: `pip install pynvml nvidia-ml-py`
+  - Otherwise, the demo automatically uses realistic mock GPU metrics
 
 ## Quick Start
 
@@ -188,7 +191,8 @@ Adjust timing in `demo.py` if needed.
 ### No GPU metrics
 - Verify NVIDIA drivers are installed: `nvidia-smi`
 - Check that `pynvml` is installed: `pip list | grep pynvml`
-- The demo will use mock data if GPU is not available
+- The demo will automatically use mock data if GPU is not available
+- Force mock mode for testing: `python demo.py --mock-gpu`
 
 ## Stopping the Demo
 

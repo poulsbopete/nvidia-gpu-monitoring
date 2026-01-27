@@ -33,14 +33,18 @@ echo "Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Check for NVIDIA GPU
+# Try to install GPU monitoring libraries (optional)
 echo ""
-echo "Checking for NVIDIA GPU..."
+echo "Checking for NVIDIA GPU support..."
 if command -v nvidia-smi &> /dev/null; then
     echo "NVIDIA GPU detected:"
     nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader
+    echo ""
+    echo "Installing GPU monitoring libraries..."
+    pip install pynvml nvidia-ml-py || echo "Warning: Could not install GPU libraries. Mock data will be used."
 else
-    echo "Warning: nvidia-smi not found. GPU monitoring will use mock data."
+    echo "No NVIDIA GPU detected. GPU monitoring will use mock data."
+    echo "To enable real GPU monitoring, install: pip install pynvml nvidia-ml-py"
 fi
 
 # Check for OpenTelemetry Collector

@@ -10,9 +10,10 @@ opentelemetry-instrumentation-requests==0.45b0
 opentelemetry-exporter-otlp-proto-grpc==1.24.0
 opentelemetry-exporter-otlp-proto-http==1.24.0
 
-# GPU Monitoring
-pynvml==11.5.0
-nvidia-ml-py==12.535.133
+# GPU Monitoring (optional - only needed if you have NVIDIA hardware)
+# Uncomment these if you have NVIDIA GPUs:
+# pynvml==11.5.0
+# nvidia-ml-py==12.535.133
 
 # Data Processing
 numpy==1.26.3

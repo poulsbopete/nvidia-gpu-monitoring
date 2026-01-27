@@ -20,10 +20,17 @@ except ImportError:
 class GPUMonitor:
     """Monitor NVIDIA GPU metrics using pynvml."""
     
-    def __init__(self):
+    def __init__(self, force_mock: bool = False):
+        """
+        Initialize GPU monitor.
+        
+        Args:
+            force_mock: If True, use mock data even if NVML is available (useful for testing)
+        """
         self.meter = get_meter(__name__)
         self.initialized = False
         self.gpu_count = 0
+        self.force_mock = force_mock
         
         # Create OpenTelemetry metrics
         self.gpu_utilization = self.meter.create_up_down_counter(
@@ -74,7 +81,11 @@ class GPUMonitor:
             unit="MHz",
         )
         
-        if NVML_AVAILABLE:
+        if self.force_mock:
+            logger.info("Mock mode forced - using fake GPU data")
+            self.initialized = False
+            self.gpu_count = 1
+        elif NVML_AVAILABLE:
             try:
                 pynvml.nvmlInit()
                 self.gpu_count = pynvml.nvmlDeviceGetCount()
@@ -82,9 +93,12 @@ class GPUMonitor:
                 logger.info(f"Initialized GPU monitoring for {self.gpu_count} GPU(s)")
             except Exception as e:
                 logger.error(f"Failed to initialize NVML: {e}")
+                logger.warning("Falling back to mock data")
                 self.initialized = False
+                self.gpu_count = 1
         else:
             logger.warning("NVML not available - using mock data")
+            self.gpu_count = 1  # Set to 1 for mock mode
     
     def get_gpu_info(self, handle) -> Dict:
         """Get GPU information."""
@@ -168,21 +182,57 @@ class GPUMonitor:
     def _get_mock_metrics(self) -> List[Dict]:
         """Generate mock GPU metrics for demo when NVML is not available."""
         import random
-        return [{
+        
+        # Set gpu_count to 1 for mock mode
+        if self.gpu_count == 0:
+            self.gpu_count = 1
+        
+        # Generate realistic mock metrics
+        utilization_gpu = random.randint(40, 95)
+        utilization_memory = random.randint(50, 90)
+        memory_total = 40 * 1024 * 1024 * 1024  # 40 GB
+        memory_used = int(memory_total * (utilization_memory / 100))
+        memory_free = memory_total - memory_used
+        temperature = random.randint(45, 75)
+        power_usage = random.randint(200, 300)
+        power_limit = 400
+        clock_graphics = random.randint(1000, 1400)
+        clock_memory = random.randint(1200, 1600)
+        
+        gpu_metrics = {
             "gpu_index": 0,
             "gpu_name": "NVIDIA A100 (Mock)",
             "gpu_uuid": "mock-uuid-001",
-            "utilization_gpu": random.randint(40, 95),
-            "utilization_memory": random.randint(50, 90),
-            "memory_used": 30 * 1024 * 1024 * 1024,  # 30 GB
-            "memory_total": 40 * 1024 * 1024 * 1024,  # 40 GB
-            "memory_free": 10 * 1024 * 1024 * 1024,  # 10 GB
-            "temperature": random.randint(45, 75),
-            "power_usage": random.randint(200, 300),
-            "power_limit": 400,
-            "clock_graphics": random.randint(1000, 1400),
-            "clock_memory": random.randint(1200, 1600),
-        }]
+            "utilization_gpu": utilization_gpu,
+            "utilization_memory": utilization_memory,
+            "memory_used": memory_used,
+            "memory_total": memory_total,
+            "memory_free": memory_free,
+            "temperature": temperature,
+            "power_usage": power_usage,
+            "power_limit": power_limit,
+            "clock_graphics": clock_graphics,
+            "clock_memory": clock_memory,
+        }
+        
+        # Send mock metrics to OpenTelemetry
+        attributes = {
+            "gpu.index": "0",
+            "gpu.name": "NVIDIA A100 (Mock)",
+            "gpu.uuid": "mock-uuid-001",
+            "gpu.mock": "true",  # Flag to indicate this is mock data
+        }
+        
+        self.gpu_utilization.add(utilization_gpu, attributes=attributes)
+        self.gpu_memory_used.add(memory_used, attributes=attributes)
+        self.gpu_memory_total.add(memory_total, attributes=attributes)
+        self.gpu_temperature.add(temperature, attributes=attributes)
+        self.gpu_power_usage.add(power_usage, attributes=attributes)
+        self.gpu_power_limit.add(power_limit, attributes=attributes)
+        self.gpu_clock_graphics.add(clock_graphics, attributes=attributes)
+        self.gpu_clock_memory.add(clock_memory, attributes=attributes)
+        
+        return [gpu_metrics]
     
     def shutdown(self):
         """Cleanup NVML resources."""

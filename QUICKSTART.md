@@ -11,7 +11,10 @@ docker --version
 docker-compose --version
 
 # Check NVIDIA GPU (optional - demo works without it)
-nvidia-smi
+# If you have NVIDIA hardware, install pynvml:
+# pip install pynvml nvidia-ml-py
+# Otherwise, the demo will use mock GPU data automatically
+nvidia-smi  # Optional - only if you have NVIDIA hardware
 ```
 
 ## Step-by-Step Setup

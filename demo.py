@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class MonitoringDemo:
     """Main demo application."""
     
-    def __init__(self, otel_endpoint: str = "localhost:4317"):
+    def __init__(self, otel_endpoint: str = "localhost:4317", force_mock_gpu: bool = False):
         logger.info("Initializing monitoring demo...")
         
         # Initialize OpenTelemetry
@@ -31,7 +31,7 @@ class MonitoringDemo:
         
         # Initialize monitors
         logger.info("Initializing GPU monitor...")
-        self.gpu_monitor = GPUMonitor()
+        self.gpu_monitor = GPUMonitor(force_mock=force_mock_gpu)
         
         logger.info("Initializing job queue...")
         self.job_queue = JobQueue()
@@ -182,6 +182,11 @@ def main():
         default="localhost:4317",
         help="OpenTelemetry Collector endpoint (default: localhost:4317)"
     )
+    parser.add_argument(
+        "--mock-gpu",
+        action="store_true",
+        help="Force mock GPU mode even if NVIDIA hardware is available (useful for testing)"
+    )
     
     args = parser.parse_args()
     
@@ -190,7 +195,7 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
     
     # Create and run demo
-    demo = MonitoringDemo(otel_endpoint=args.otel_endpoint)
+    demo = MonitoringDemo(otel_endpoint=args.otel_endpoint, force_mock_gpu=args.mock_gpu)
     
     try:
         demo.run()
