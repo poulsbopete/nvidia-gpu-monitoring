@@ -22,18 +22,33 @@ nvidia-smi  # Optional - only if you have NVIDIA hardware
 ### 1. Start Elastic Stack and OpenTelemetry Collector
 
 **Option A: Using start-local Elastic with Observability (Recommended)**
+
+start-local with `--edot` includes a built-in OpenTelemetry Collector, so setup is simple:
+
 ```bash
-# Start Elastic with observability features
+# Start Elastic with observability features (includes built-in collector)
 curl -fsSL https://elastic.co/start-local | sh -s -- --edot
 
-# Note the API key from the output, then update otel-collector-config.start-local.yaml
-# with the API key (replace the existing api_key value)
+# Save the API key from the output (you'll need it if you want to use your own collector)
+# The built-in collector is already running on ports 4317-4318 - ready to use!
+```
 
-# Start OpenTelemetry Collector with start-local config
+**That's it!** The built-in collector is ready. Skip to step 3 to run the demo.
+
+**Optional: Use Your Own Collector**
+
+If you prefer to use your own collector with custom configuration:
+
+```bash
+# 1. Update otel-collector-config.start-local.yaml with the API key from start-local output
+# 2. Start your collector:
 otelcol --config=otel-collector-config.start-local.yaml
 ```
 
 **Option B: Using Docker Compose (local Elastic)**
+
+**Note**: Don't use this if start-local is already running (port conflict on 9200).
+
 ```bash
 docker-compose up -d
 ```
@@ -71,11 +86,14 @@ source venv/bin/activate
 python demo.py
 ```
 
-**Note**: If you don't have NVIDIA GPU hardware, the demo will automatically use mock GPU data. All metrics will still be sent to Elasticsearch!
+**Note**: 
+- If you don't have NVIDIA GPU hardware, the demo will automatically use mock GPU data. All metrics will still be sent to Elasticsearch!
+- If using start-local's built-in collector, the demo will automatically connect to `localhost:4317`
+- If using your own collector, make sure it's running first
 
 **Options:**
 - `--mock-gpu`: Force mock GPU mode (even if hardware is available)
-- `--otel-endpoint HOST:PORT`: Custom OpenTelemetry endpoint
+- `--otel-endpoint HOST:PORT`: Custom OpenTelemetry endpoint (default: `localhost:4317`)
 
 The demo will start generating:
 - GPU metrics every 5 seconds (real or mock)
@@ -119,7 +137,15 @@ docker-compose down
 
 ## Troubleshooting
 
-### Elasticsearch not starting
+### Port Already Allocated (9200)
+
+If you see "port is already allocated" when running docker-compose:
+- start-local is already running on port 9200
+- This is fine! Use start-local instead of docker-compose
+- Check running containers: `docker ps | grep -E "(es-local|kibana)"`
+- If you want to use docker-compose, stop start-local first
+
+### Elasticsearch not starting (Docker Compose)
 ```bash
 # Check logs
 docker-compose logs elasticsearch
@@ -129,11 +155,25 @@ docker-compose logs elasticsearch
 
 ### No data in Kibana
 1. Wait 30-60 seconds for data to be indexed
-2. Check OpenTelemetry Collector logs: `docker-compose logs otel-collector`
+2. Check OpenTelemetry Collector:
+   - For start-local built-in: `docker logs edot-collector`
+   - For docker-compose: `docker-compose logs otel-collector`
+   - For local collector: Check the terminal where you ran `otelcol`
 3. Verify demo is running and sending data
-4. Check Elasticsearch indices: `curl http://localhost:9200/_cat/indices`
+4. Check Elasticsearch indices:
+   - For start-local: `curl -H "Authorization: ApiKey YOUR_API_KEY" http://localhost:9200/_cat/indices`
+   - For docker-compose: `curl http://localhost:9200/_cat/indices`
 
 ### Collector connection issues
-- Verify collector is running: `docker-compose ps otel-collector`
-- Check collector logs: `docker-compose logs otel-collector`
-- Verify port 4317 is accessible: `curl http://localhost:4317`
+- Verify collector is running:
+  - Built-in (start-local): `docker ps | grep edot-collector`
+  - Docker Compose: `docker-compose ps otel-collector`
+  - Local: Check the terminal where you ran `otelcol`
+- Check collector logs (see above)
+- Verify port 4317 is accessible: `curl http://localhost:4317` (should return empty response if collector is running)
+
+### Can't find API key from start-local
+- Check the terminal where you ran `curl -fsSL https://elastic.co/start-local | sh -s -- --edot`
+- Look for a line with `elastic:` followed by a long string
+- If you can't find it, you can restart start-local (but this will stop your current instance)
+- If using the built-in collector, you don't need the API key - it's already configured!

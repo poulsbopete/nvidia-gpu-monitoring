@@ -13,45 +13,77 @@ curl -fsSL https://elastic.co/start-local | sh -s -- --edot
 ```
 
 This will:
-- Start Elasticsearch with observability features
-- Start Kibana
+- Start Elasticsearch with observability features on port 9200
+- Start Kibana on port 5601
+- **Start a built-in OpenTelemetry Collector** on ports 4317 (gRPC) and 4318 (HTTP)
 - Generate API keys automatically
 - Display connection information including the API key
+
+**Important**: Save the API key from the output! It looks like `elastic:xxxxx==` and you'll need it if you want to use your own collector.
 
 **Note**: The script will output important information including:
 - Elasticsearch endpoint (typically `http://localhost:9200`)
 - Kibana URL (typically `http://localhost:5601`)
 - API key for authentication
+- OpenTelemetry Collector endpoints (ports 4317 and 4318)
 
-### 2. Configure the OpenTelemetry Collector
+### 2. Choose Your OpenTelemetry Collector Option
 
-After start-local completes, you'll need to update `otel-collector-config.start-local.yaml` with the API key that was generated:
+start-local with `--edot` includes a built-in OpenTelemetry Collector that's already running. You have two options:
 
-```yaml
-elasticsearch:
-  endpoints:
-    - http://localhost:9200
-  api_key: YOUR_API_KEY_FROM_START_LOCAL_OUTPUT
-```
+#### Option A: Use the Built-in Collector (Simplest - Recommended)
 
-The API key format from start-local will look like:
-```
-elastic:xxxxx==
-```
+The built-in collector is already running and ready to receive data. **No additional setup needed!**
 
-Copy the entire API key (including the `elastic:` prefix) into the config file.
-
-### 3. Start the OpenTelemetry Collector
-
+Just run your demo:
 ```bash
-otelcol --config=otel-collector-config.start-local.yaml
+source venv/bin/activate
+python demo.py
 ```
 
-### 4. Run the demo application** (in a separate terminal):
+The demo will automatically send data to `localhost:4317` (the built-in collector).
+
+#### Option B: Use Your Own Collector (More Control)
+
+If you want to use your own collector with custom configuration:
+
+1. **Update the config file** with your API key:
+   
+   Edit `otel-collector-config.start-local.yaml` and replace `YOUR_API_KEY_FROM_START_LOCAL_OUTPUT` with the API key from step 1:
+   
+   ```yaml
+   elasticsearch:
+     endpoints:
+       - http://localhost:9200
+     api_key: elastic:xxxxx==  # Your actual API key here
+   ```
+   
+   The API key format from start-local looks like: `elastic:xxxxx==`
+   
+   Copy the entire API key (including the `elastic:` prefix).
+
+2. **Start your OpenTelemetry Collector**:
+   ```bash
+   otelcol --config=otel-collector-config.start-local.yaml
+   ```
+   
+   **Note**: Make sure the built-in collector isn't using ports 4317-4318, or use different ports in your config.
+
+3. **Run the demo application** (in a separate terminal):
    ```bash
    source venv/bin/activate
    python demo.py
    ```
+
+### 3. Run the Demo
+
+```bash
+source venv/bin/activate
+python demo.py
+```
+
+If using the built-in collector (Option A), the demo will automatically connect to it.
+If using your own collector (Option B), ensure it's running first.
 
 ## Updating the API Key
 
@@ -64,8 +96,11 @@ elasticsearch:
 
 **Getting the API Key from start-local:**
 - The API key is displayed in the terminal output when you run the start-local script
-- It's also available in the `.env` file created by start-local (if present)
-- Format: `elastic:xxxxx==`
+- Look for a line containing `elastic:` followed by a long base64-encoded string
+- The API key format is: `elastic:xxxxx==`
+- **Important**: Copy the entire key including the `elastic:` prefix
+- If you can't find it, scroll back in your terminal or check the terminal where you ran start-local
+- You can also restart start-local to see the API key again (but this will stop your current instance)
 
 ## Verifying Connection
 
@@ -97,6 +132,22 @@ If you see authentication errors in the collector logs:
 ### Connection Refused
 
 If the collector can't connect:
-1. Verify start-local Elastic is running
-2. Check the endpoint URL matches your Elastic instance
+1. Verify start-local Elastic is running: `docker ps | grep es-local-dev`
+2. Check the endpoint URL matches your Elastic instance (http://localhost:9200)
 3. Ensure port 9200 is accessible
+4. Verify the API key is correct and includes the `elastic:` prefix
+
+### Port Already Allocated
+
+If you see "port is already allocated" errors:
+- This usually means start-local is already running
+- Check running containers: `docker ps | grep -E "(es-local|kibana|edot-collector)"`
+- You can use the existing start-local instance - no need to start docker-compose
+- If you want to use docker-compose instead, stop start-local first
+
+### Using Both Built-in and Custom Collectors
+
+If you want to use your own collector while start-local is running:
+- The built-in collector uses ports 4317-4318
+- Configure your collector to use different ports (e.g., 4319-4320)
+- Update your demo to use the custom endpoint: `python demo.py --otel-endpoint localhost:4319`

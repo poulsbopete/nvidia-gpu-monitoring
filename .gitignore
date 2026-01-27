@@ -47,3 +47,6 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Elastic start-local installation
+elastic-start-local/

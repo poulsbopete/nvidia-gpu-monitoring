@@ -40,12 +40,19 @@ chmod +x setup.sh
    ```bash
    curl -fsSL https://elastic.co/start-local | sh -s -- --edot
    ```
-   Note the API key from the output and update `otel-collector-config.start-local.yaml` with it.
+   
+   This starts Elasticsearch, Kibana, and **a built-in OpenTelemetry Collector** (ready to use on ports 4317-4318).
+   
+   **Using the built-in collector (simplest)**: No additional setup needed! Just run the demo.
+   
+   **Using your own collector**: Save the API key from the output and update `otel-collector-config.start-local.yaml` with it.
    
    **Option B: Using Docker Compose**
    ```bash
    docker-compose up -d
    ```
+   **Note**: Don't use this if start-local is already running (port conflict on 9200).
+   
    Wait for Elasticsearch and Kibana to be healthy (check with `docker-compose ps`).
 
 2. **Install Python dependencies**:
@@ -55,21 +62,24 @@ chmod +x setup.sh
    pip install -r requirements.txt
    ```
 
-3. **Start OpenTelemetry Collector**:
+3. **Start OpenTelemetry Collector** (if not using start-local's built-in collector):
    
-   **Option A: Use Docker Compose (Recommended)**
+   **If using start-local (Option A above)**: The built-in collector is already running! Skip this step.
+   
+   **If using Docker Compose (Option B above)**:
    ```bash
    # The collector is already included in docker-compose.yml
-   # Just start it with the Elastic stack:
-   docker-compose up -d
+   # It started with the Elastic stack in step 1
    ```
    
-   **Option B: Run Collector Binary Locally**
+   **If you want to use your own collector with start-local**:
    - Install from: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
-   - For start-local Elastic (with `--edot`): 
-     - First update `otel-collector-config.start-local.yaml` with your API key from start-local output
-     - Then run: `otelcol --config=otel-collector-config.start-local.yaml`
-   - For local Elastic: `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
+   - Update `otel-collector-config.start-local.yaml` with your API key from start-local output
+   - Run: `otelcol --config=otel-collector-config.start-local.yaml`
+   - **Note**: The built-in collector uses ports 4317-4318, so configure your collector to use different ports
+   
+   **If using local Elastic (Docker Compose without auth)**:
+   - `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
    
    **Option C: Run Collector in Docker Manually**
    ```bash
@@ -278,9 +288,14 @@ Adjust timing in `demo.py` if needed.
 - Check collector logs for errors
 
 ### Elasticsearch connection issues
-- Ensure Elasticsearch is running: `docker-compose ps`
-- Check Elasticsearch health: `curl http://localhost:9200/_cluster/health`
+- Ensure Elasticsearch is running:
+  - For start-local: `docker ps | grep es-local-dev`
+  - For docker-compose: `docker-compose ps`
+- Check Elasticsearch health:
+  - For start-local: `curl -H "Authorization: ApiKey YOUR_API_KEY" http://localhost:9200/_cluster/health`
+  - For docker-compose: `curl http://localhost:9200/_cluster/health`
 - Verify network connectivity between collector and Elasticsearch
+- If using start-local, ensure you're using the correct API key
 
 ### No GPU metrics
 - Verify NVIDIA drivers are installed: `nvidia-smi`
