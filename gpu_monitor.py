@@ -54,7 +54,7 @@ class GPUMonitor:
         self.gpu_temperature = self.meter.create_up_down_counter(
             name="gpu.temperature.celsius",
             description="GPU temperature in Celsius",
-            unit="°C",
+            unit="C",
         )
         
         self.gpu_power_usage = self.meter.create_up_down_counter(
