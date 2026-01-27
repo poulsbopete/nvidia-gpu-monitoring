@@ -21,8 +21,6 @@ nvidia-smi  # Optional - only if you have NVIDIA hardware
 
 ### 1. Start Elastic Stack and OpenTelemetry Collector
 
-**Option A: Using start-local Elastic with Observability (Recommended)**
-
 start-local with `--edot` includes a built-in OpenTelemetry Collector, so setup is simple:
 
 ```bash
@@ -45,25 +43,10 @@ If you prefer to use your own collector with custom configuration:
 otelcol --config=otel-collector-config.start-local.yaml
 ```
 
-**Option B: Using Docker Compose (local Elastic)**
-
-**Note**: Don't use this if start-local is already running (port conflict on 9200).
+**Verify Elasticsearch is running:**
 
 ```bash
-docker-compose up -d
-```
-
-Wait for services to be healthy:
-```bash
-docker-compose ps
-```
-
-Check Elasticsearch:
-```bash
-# For Docker Compose (no auth):
-curl http://localhost:9200/_cluster/health
-
-# For start-local with API key (replace YOUR_API_KEY with actual key):
+# For start-local with API key (replace YOUR_API_KEY with actual key from start-local output):
 curl -H "Authorization: ApiKey YOUR_API_KEY" http://localhost:9200/_cluster/health
 ```
 

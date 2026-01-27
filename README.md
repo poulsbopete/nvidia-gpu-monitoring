@@ -16,7 +16,7 @@ This demo showcases monitoring NVIDIA GPUs, AI analysis jobs, and geo seismic da
 ## Prerequisites
 
 - Python 3.9+
-- Docker and Docker Compose (for Elastic stack)
+- Docker (for Elastic start-local)
 - **Optional**: NVIDIA GPU with CUDA support
   - **No GPU? No problem!** The demo automatically uses realistic mock GPU metrics
   - If you have NVIDIA hardware, install: `pip install pynvml nvidia-ml-py`
@@ -36,7 +36,6 @@ chmod +x setup.sh
 
 1. **Start Elastic Stack**:
    
-   **Option A: Using start-local with Observability (Recommended)**
    ```bash
    curl -fsSL https://elastic.co/start-local | sh -s -- --edot
    ```
@@ -46,14 +45,6 @@ chmod +x setup.sh
    **Using the built-in collector (simplest)**: No additional setup needed! Just run the demo.
    
    **Using your own collector**: Save the API key from the output and update `otel-collector-config.start-local.yaml` with it.
-   
-   **Option B: Using Docker Compose**
-   ```bash
-   docker-compose up -d
-   ```
-   **Note**: Don't use this if start-local is already running (port conflict on 9200).
-   
-   Wait for Elasticsearch and Kibana to be healthy (check with `docker-compose ps`).
 
 2. **Install Python dependencies**:
    ```bash
@@ -62,43 +53,40 @@ chmod +x setup.sh
    pip install -r requirements.txt
    ```
 
-3. **Start OpenTelemetry Collector** (if not using start-local's built-in collector):
-   
-   **If using start-local (Option A above)**: The built-in collector is already running! Skip this step.
-   
-   **If using Docker Compose (Option B above)**:
-   ```bash
-   # The collector is already included in docker-compose.yml
-   # It started with the Elastic stack in step 1
-   ```
-   
-   **If you want to use your own collector with start-local**:
-   - Install from: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
-   - Update `otel-collector-config.start-local.yaml` with your API key from start-local output
-   - Run: `otelcol --config=otel-collector-config.start-local.yaml`
-   - **Note**: The built-in collector uses ports 4317-4318, so configure your collector to use different ports
-   
-   **If using local Elastic (Docker Compose without auth)**:
-   - `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
-   
-   **Option C: Run Collector in Docker Manually**
-   ```bash
-   docker run -d --name otel-collector \
-     -p 4317:4317 -p 4318:4318 \
-     -v $(pwd)/otel-collector-config.local.yaml:/etc/otelcol/config.yaml \
-     otel/opentelemetry-collector-contrib:latest \
-     --config=/etc/otelcol/config.yaml
-   ```
-
-5. **Run the demo application** (in a separate terminal):
+3. **Run the demo application** (in a separate terminal):
    ```bash
    source venv/bin/activate
    python demo.py
    ```
    
+   The demo will automatically connect to the built-in OpenTelemetry Collector on `localhost:4317`.
+   
    **Options:**
    - `--mock-gpu`: Force mock GPU mode (useful for testing without hardware)
-   - `--otel-endpoint HOST:PORT`: Custom OpenTelemetry Collector endpoint
+   - `--otel-endpoint HOST:PORT`: Custom OpenTelemetry Collector endpoint (if using your own collector)
+
+## Optional: Using Your Own OpenTelemetry Collector
+
+If you want to use your own collector with custom configuration instead of the built-in one:
+
+1. **Install the OpenTelemetry Collector**:
+   - Download from: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
+   - Or use Docker: `docker pull otel/opentelemetry-collector-contrib:latest`
+
+2. **Update the configuration**:
+   - Edit `otel-collector-config.start-local.yaml`
+   - Replace `YOUR_API_KEY_FROM_START_LOCAL_OUTPUT` with the API key from start-local output
+   - **Important**: The built-in collector uses ports 4317-4318, so configure your collector to use different ports (e.g., 4319-4320)
+
+3. **Start your collector**:
+   ```bash
+   otelcol --config=otel-collector-config.start-local.yaml
+   ```
+
+4. **Run the demo with custom endpoint**:
+   ```bash
+   python demo.py --otel-endpoint localhost:4319
+   ```
 
 ## Architecture
 
