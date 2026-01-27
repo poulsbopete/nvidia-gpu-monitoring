@@ -10,10 +10,10 @@ python3 --version  # Should be 3.9+
 docker --version
 docker-compose --version
 
-# Check NVIDIA GPU (optional - demo works without it)
-# If you have NVIDIA hardware, install pynvml:
-# pip install pynvml nvidia-ml-py
-# Otherwise, the demo will use mock GPU data automatically
+# Check NVIDIA GPU (optional - demo works without it!)
+# The demo automatically uses mock GPU data if no hardware is available
+# If you have NVIDIA hardware and want real metrics:
+#   pip install pynvml nvidia-ml-py
 nvidia-smi  # Optional - only if you have NVIDIA hardware
 ```
 
@@ -54,8 +54,14 @@ source venv/bin/activate
 python demo.py
 ```
 
+**Note**: If you don't have NVIDIA GPU hardware, the demo will automatically use mock GPU data. All metrics will still be sent to Elasticsearch!
+
+**Options:**
+- `--mock-gpu`: Force mock GPU mode (even if hardware is available)
+- `--otel-endpoint HOST:PORT`: Custom OpenTelemetry endpoint
+
 The demo will start generating:
-- GPU metrics every 5 seconds
+- GPU metrics every 5 seconds (real or mock)
 - AI analysis jobs every 2 seconds
 - Seismic data processing every 10 seconds
 

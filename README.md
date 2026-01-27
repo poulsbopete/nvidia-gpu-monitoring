@@ -16,9 +16,10 @@ This demo showcases monitoring NVIDIA GPUs, AI analysis jobs, and geo seismic da
 
 - Python 3.9+
 - Docker and Docker Compose (for Elastic stack)
-- **Optional**: NVIDIA GPU with CUDA support (demo works without it using mock data)
+- **Optional**: NVIDIA GPU with CUDA support
+  - **No GPU? No problem!** The demo automatically uses realistic mock GPU metrics
   - If you have NVIDIA hardware, install: `pip install pynvml nvidia-ml-py`
-  - Otherwise, the demo automatically uses realistic mock GPU metrics
+  - Mock mode can be forced with `--mock-gpu` flag even if hardware is available
 
 ## Quick Start
 
@@ -72,6 +73,10 @@ chmod +x setup.sh
    source venv/bin/activate
    python demo.py
    ```
+   
+   **Options:**
+   - `--mock-gpu`: Force mock GPU mode (useful for testing without hardware)
+   - `--otel-endpoint HOST:PORT`: Custom OpenTelemetry Collector endpoint
 
 ## Architecture
 
@@ -145,7 +150,12 @@ Key traces:
 ### GPU Monitor (`gpu_monitor.py`)
 - Collects real-time GPU metrics using NVIDIA Management Library (NVML)
 - Monitors: utilization, memory, temperature, power, clock speeds
-- Falls back to mock data if NVIDIA hardware is not available
+- **Automatic Mock Mode**: Falls back to realistic mock data if NVIDIA hardware is not available
+- **Mock Data Features**:
+  - Realistic GPU metrics (utilization, memory, temperature, power)
+  - All metrics exported to OpenTelemetry/Elasticsearch
+  - Marked with `gpu.mock: "true"` attribute for filtering
+  - Can be forced with `--mock-gpu` flag for testing
 
 ### Job Monitor (`job_monitor.py`)
 - Tracks AI/analysis jobs with distributed tracing
