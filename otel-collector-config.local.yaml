@@ -1,0 +1,67 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  
+  memory_limiter:
+    limit_mib: 512
+    check_interval: 1s
+  
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: demo
+        action: upsert
+      - key: collector.name
+        value: nvidia-gpu-monitoring-collector
+        action: upsert
+
+exporters:
+  # Elasticsearch exporter for metrics, traces, and logs
+  elasticsearch:
+    endpoints:
+      - http://localhost:9200  # Use localhost when running outside Docker
+    logs_index: logs-nvidia-gpu-monitoring
+    traces_index: traces-nvidia-gpu-monitoring
+    metrics_index: metrics-nvidia-gpu-monitoring
+    mapping:
+      mode: ecs
+    flush:
+      bytes: 10485760  # 10MB
+      interval: 10s
+    retry:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
+
+  # Logging exporter for debugging (optional)
+  logging:
+    loglevel: info
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [elasticsearch, logging]
+    
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [elasticsearch, logging]
+    
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [elasticsearch, logging]
+
+  extensions: []
