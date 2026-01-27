@@ -18,12 +18,19 @@ if ! command -v otelcol &> /dev/null; then
     exit 1
 fi
 
-# Check if config file exists
-if [ ! -f "otel-collector-config.local.yaml" ]; then
-    echo "Error: otel-collector-config.local.yaml not found"
+# Check for start-local config first, then fall back to local config
+if [ -f "otel-collector-config.start-local.yaml" ]; then
+    CONFIG_FILE="otel-collector-config.start-local.yaml"
+    echo "Using start-local Elastic configuration"
+elif [ -f "otel-collector-config.local.yaml" ]; then
+    CONFIG_FILE="otel-collector-config.local.yaml"
+    echo "Using local Elastic configuration"
+else
+    echo "Error: No collector config file found"
+    echo "Expected: otel-collector-config.start-local.yaml or otel-collector-config.local.yaml"
     exit 1
 fi
 
 # Run collector
-echo "Running OpenTelemetry Collector with config: otel-collector-config.local.yaml"
-otelcol --config=otel-collector-config.local.yaml
+echo "Running OpenTelemetry Collector with config: $CONFIG_FILE"
+otelcol --config=$CONFIG_FILE

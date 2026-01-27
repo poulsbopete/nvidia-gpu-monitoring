@@ -58,7 +58,8 @@ chmod +x setup.sh
    
    **Option B: Run Collector Binary Locally**
    - Install from: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
-   - Run: `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
+   - For start-local Elastic: `otelcol --config=otel-collector-config.start-local.yaml`
+   - For local Elastic: `./run-collector.sh` or `otelcol --config=otel-collector-config.local.yaml`
    
    **Option C: Run Collector in Docker Manually**
    ```bash
@@ -172,9 +173,20 @@ Key traces:
 
 ### OpenTelemetry Collector
 
-Edit `otel-collector-config.yaml` to:
+The project includes multiple collector configurations:
+- `otel-collector-config.start-local.yaml` - For start-local Elastic instance with API key
+- `otel-collector-config.local.yaml` - For local Elastic without authentication
+- `otel-collector-config.yaml` - For Docker Compose setup
+
+**For start-local Elastic:**
+The configuration file `otel-collector-config.start-local.yaml` is pre-configured with:
+- Endpoint: `http://localhost:9200`
+- API key: Already set (update if needed)
+
+Edit the config files to:
 - Adjust export intervals and batch sizes
 - Modify Elasticsearch endpoints
+- Update API keys or authentication
 - Add additional processors or exporters
 - Configure sampling rates
 
