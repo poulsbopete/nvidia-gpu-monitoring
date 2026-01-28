@@ -23,16 +23,29 @@ The following configuration files may contain sensitive data:
 
 3. **For Start-Local**: The `otel-collector-config.start-local.yaml` file uses a placeholder. After running start-local, update it with your API key from the start-local output.
 
+### Start-Local API Keys
+
+**Important Note**: When using Elastic start-local, API keys are ephemeral and are automatically destroyed when you stop the start-local instance. This means:
+- Keys exposed in git history for start-local instances are not a permanent security risk
+- However, it's still best practice to avoid committing them
+- If a key is exposed, simply stopping and restarting start-local will generate a new key
+
 ### If You Accidentally Committed Secrets
 
 If you've accidentally committed API keys or other secrets:
 
-1. **Immediately Rotate the Keys**: 
+1. **For Start-Local Keys**: 
+   - These are ephemeral and destroyed when start-local stops
+   - Simply restart start-local to get a new key
+   - No rotation needed, but still good practice to avoid committing them
+
+2. **For Production Keys** (if applicable):
+   - Immediately rotate the keys
    - Generate new API keys in Elasticsearch
    - Update all systems using the old keys
    - Revoke the old keys
 
-2. **Remove from Git History** (if needed):
+3. **Remove from Git History** (if needed):
    ```bash
    # Option 1: Use git filter-branch (for small repos)
    git filter-branch --force --index-filter \
@@ -69,3 +82,4 @@ As of the latest update:
 - Template files (`.example`) are provided for reference
 - Config files with placeholders are safe to commit
 - Local config files are in `.gitignore`
+- Start-local keys are ephemeral (destroyed when instance stops)
