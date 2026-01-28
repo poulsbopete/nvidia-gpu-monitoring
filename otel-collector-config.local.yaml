@@ -29,7 +29,7 @@ exporters:
   elasticsearch:
     endpoints:
       - http://localhost:9200  # Use localhost when running outside Docker
-    api_key: cS1LS0Fad0IweERGVE5FUFl6UFk6b3FDcm8zSExPMnhiMUh3YVlvZW42QQ==
+    # api_key: YOUR_API_KEY_HERE  # Add your API key here (do not commit real keys!)
     logs_index: logs-nvidia-gpu-monitoring
     traces_index: traces-nvidia-gpu-monitoring
     metrics_index: metrics-nvidia-gpu-monitoring

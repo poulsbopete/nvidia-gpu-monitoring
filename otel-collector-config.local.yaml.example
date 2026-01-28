@@ -23,22 +23,13 @@ processors:
       - key: collector.name
         value: nvidia-gpu-monitoring-collector
         action: upsert
-  
-  # Optional: Transform attributes for better Elasticsearch indexing
-  # Note: Requires otelcol-contrib with transform processor
-  # transform:
-  #   log_statements:
-  #     - context: log
-  #       statements:
-  #         - set(attributes["log.level"], attributes["severity_text"]) where attributes["severity_text"] != nil
 
 exporters:
   # Elasticsearch exporter for metrics, traces, and logs
   elasticsearch:
     endpoints:
-      - http://elasticsearch:9200  # Use service name when running in Docker
-      # For start-local, use: http://localhost:9200
-    # api_key: YOUR_API_KEY_HERE  # Add your API key here (do not commit real keys!)
+      - http://localhost:9200  # Use localhost when running outside Docker
+    api_key: YOUR_API_KEY_HERE  # Add your API key here (do not commit real keys!)
     logs_index: logs-nvidia-gpu-monitoring
     traces_index: traces-nvidia-gpu-monitoring
     metrics_index: metrics-nvidia-gpu-monitoring

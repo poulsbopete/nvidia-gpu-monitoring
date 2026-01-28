@@ -38,7 +38,7 @@ exporters:
     endpoints:
       - http://elasticsearch:9200  # Use service name when running in Docker
       # For start-local, use: http://localhost:9200
-    # api_key: YOUR_API_KEY_HERE  # Add your API key here (do not commit real keys!)
+    api_key: YOUR_API_KEY_HERE  # Add your API key here (do not commit real keys!)
     logs_index: logs-nvidia-gpu-monitoring
     traces_index: traces-nvidia-gpu-monitoring
     metrics_index: metrics-nvidia-gpu-monitoring

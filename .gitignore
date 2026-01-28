@@ -50,3 +50,20 @@ docker-compose.override.yml
 
 # Elastic start-local installation
 elastic-start-local/
+
+# Configuration files with sensitive data (use .example files instead)
+# Note: These files are already tracked, but future changes with secrets will be ignored
+# To use: Copy .example files and add your own API keys locally
+
+# Local config overrides (these should never be committed)
+*.local.yaml
+*.local.yml
+*secrets*.yaml
+*secrets*.yml
+*credentials*.yaml
+*credentials*.yml
+
+# Environment-specific configs (if you create them)
+otel-collector-config.prod.yaml
+otel-collector-config.dev.yaml
+otel-collector-config.staging.yaml
